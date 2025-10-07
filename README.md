@@ -75,7 +75,18 @@ It enables users to upload photos or videos of receipts, automatically extract k
 - Optional on-device OCR for privacy (no upload).
 
 ---
+## 🧱 Tech Stack
 
+| Layer | Technology | Description |
+|-------|-------------|-------------|
+| **Frontend** | React (Vite) | Responsive UI for uploads, insights, and wallet link |
+| **Backend** | Node.js + Express | API server to handle uploads, AI calls, and Wallet integration |
+| **Database** | MongoDB | Stores user receipts, items, and spending summaries |
+| **AI / ML** | Google Vertex AI + Gemini | Multimodal receipt understanding and conversational intelligence |
+| **OCR (fallback)** | Tesseract.js / OpenCV | Free local OCR for text extraction |
+| **Cloud / Hosting** | Google Cloud Run or Render | Host backend APIs |
+| **Authentication** | Google Sign-In | Easy and secure user authentication |
+| **API Integration** | Google Wallet API | Create & manage passes programmatically |
 ## 🧱 Tech Stack
 
 | Layer | Technology | Description |
@@ -92,34 +103,151 @@ It enables users to upload photos or videos of receipts, automatically extract k
 
 ---
 
+## 📁 Project Structure
+
+This project follows a full-stack architecture with separate frontend and backend directories:
+
+```
+raseed/
+├── client/                          # Frontend application (React/Vite)
+│   ├── .env                        # Environment variables
+│   ├── package.json                # Frontend dependencies and scripts
+│   ├── postcss.config.js           # PostCSS configuration
+│   ├── tailwind.config.js          # Tailwind CSS configuration
+│   ├── vite.config.js              # Vite build tool configuration
+│   ├── public/                     # Static assets
+│   │   ├── index.html              # Main HTML template
+│   │   ├── manifest.json           # PWA manifest for mobile app
+│   │   └── robots.txt              # SEO and crawler instructions
+│   └── src/                        # Source code
+│       ├── App.jsx                 # Main application component
+│       ├── main.jsx                # Application entry point
+│       ├── assets/                 # Static assets (images, icons, fonts)
+│       ├── components/             # Reusable UI components
+│       │   ├── common/             # Shared/generic components
+│       │   ├── forms/              # Form components
+│       │   ├── layout/             # Layout and navigation
+│       │   └── ui/                 # Basic UI elements
+│       ├── contexts/               # React context providers
+│       │   ├── AuthContext.jsx     # Authentication state management
+│       │   ├── ReceiptContext.jsx  # Receipt data management
+│       │   └── ThemeContext.jsx    # Theme/UI preferences
+│       ├── hooks/                  # Custom React hooks
+│       │   ├── useAuth.js          # Authentication logic
+│       │   ├── useReceipts.js      # Receipt data operations
+│       │   └── useWallet.js        # Google Wallet integration
+│       ├── pages/                  # Page components
+│       │   ├── Dashboard.jsx       # Main dashboard view
+│       │   ├── Upload.jsx          # Receipt upload interface
+│       │   ├── Insights.jsx        # Spending insights and analytics
+│       │   └── Profile.jsx         # User profile management
+│       ├── services/               # API service functions
+│       │   ├── api.js              # Base API configuration
+│       │   ├── authService.js      # Authentication API calls
+│       │   ├── receiptService.js   # Receipt processing API calls
+│       │   └── walletService.js    # Google Wallet API integration
+│       ├── styles/                 # Styling files
+│       │   ├── globals.css        # Global CSS styles
+│       │   └── variables.css       # CSS custom properties
+│       └── utils/                  # Utility functions
+│           ├── constants.js        # Application constants
+│           ├── helpers.js          # General helper functions
+│           ├── validators.js       # Input validation functions
+│           └── formatters.js       # Data formatting utilities
+│
+└── server/                         # Backend application (Node.js/Express)
+    ├── .env                        # Environment variables
+    ├── package.json               # Backend dependencies and scripts
+    ├── server.js                  # Main server entry point
+    ├── src/                       # Source code
+    │   ├── app.js                  # Express application configuration
+    │   ├── config/                 # Configuration files
+    │   │   ├── database.js         # Database connection setup
+    │   │   ├── googleWallet.js     # Google Wallet API configuration
+    │   │   ├── vertexAI.js         # Google Vertex AI configuration
+    │   │   └── cors.js             # CORS configuration
+    │   ├── controllers/            # Route controllers
+    │   │   ├── authController.js   # Authentication endpoints
+    │   │   ├── receiptController.js # Receipt processing endpoints
+    │   │   ├── insightController.js # Analytics and insights endpoints
+    │   │   └── walletController.js # Google Wallet integration endpoints
+    │   ├── middleware/             # Custom middleware functions
+    │   │   ├── auth.js             # Authentication middleware
+    │   │   ├── validation.js       # Request validation middleware
+    │   │   ├── rateLimit.js        # Rate limiting middleware
+    │   │   └── errorHandler.js     # Error handling middleware
+    │   ├── models/                # Database models
+    │   │   ├── User.js             # User schema and model
+    │   │   ├── Receipt.js          # Receipt schema and model
+    │   │   ├── Item.js             # Receipt item schema and model
+    │   │   └── Insight.js          # Analytics insight schema and model
+    │   ├── routes/                # API route definitions
+    │   │   ├── auth.js             # Authentication routes
+    │   │   ├── receipts.js         # Receipt management routes
+    │   │   ├── insights.js         # Analytics routes
+    │   │   └── wallet.js           # Google Wallet routes
+    │   ├── services/              # Business logic and external services
+    │   │   ├── ocrService.js       # OCR processing service
+    │   │   ├── aiService.js        # AI/ML service integration
+    │   │   ├── walletService.js    # Google Wallet service
+    │   │   └── notificationService.js # Push notification service
+    │   ├── utils/                 # Utility functions
+    │   │   ├── logger.js           # Logging utilities
+    │   │   ├── validators.js       # Data validation utilities
+    │   │   └── formatters.js       # Response formatting utilities
+    │   └── uploads/               # File upload directory
+    │       ├── receipts/           # Uploaded receipt images
+    │       └── temp/               # Temporary files during processing
+    └── uploads/                   # File upload directory (public access)
+```
+
+### Frontend (Client)
+The `client/` directory contains the React application built with Vite. It handles:
+- **User Interface**: Modern, responsive UI for receipt uploads and management
+- **State Management**: React Context and custom hooks for global state
+- **API Integration**: Service layer for communicating with the backend
+- **PWA Features**: Progressive Web App capabilities for mobile-like experience
+- **Styling**: Tailwind CSS for responsive design and consistent theming
+
+### Backend (Server)
+The `server/` directory contains the Node.js/Express API server that:
+- **API Endpoints**: RESTful routes for all application functionality
+- **Database Operations**: MongoDB integration with Mongoose ODM
+- **AI Integration**: Google Vertex AI and Gemini API integration
+- **File Processing**: Receipt image upload and OCR processing
+- **External Services**: Google Wallet API integration
+- **Security**: Authentication, validation, and rate limiting middleware
+
+---
+
 ## ⚙️ System Architecture (Simplified)
 
-1. **Frontend (React)**  
-   - User uploads receipt image/video.  
-   - Shows extracted data and “Add to Wallet” button.  
+1. **Frontend (React)**
+   - User uploads receipt image/video.
+   - Shows extracted data and "Add to Wallet" button.
    - Lets users query in their local language.
 
-2. **Backend (Node.js / Express)**  
-   - Handles API requests from frontend.  
-   - Sends media to Gemini (or Tesseract for fallback).  
-   - Stores structured receipt data in MongoDB.  
+2. **Backend (Node.js / Express)**
+   - Handles API requests from frontend.
+   - Sends media to Gemini (or Tesseract for fallback).
+   - Stores structured receipt data in MongoDB.
    - Integrates with Google Wallet API to generate passes.
 
-3. **AI Layer (Google Vertex AI)**  
-   - Multimodal receipt understanding.  
-   - Query answering and insights generation.  
+3. **AI Layer (Google Vertex AI)**
+   - Multimodal receipt understanding.
+   - Query answering and insights generation.
    - Spending trend detection and savings suggestions.
 
-4. **Database (MongoDB)**  
-   - `users`: profile, language preference.  
-   - `receipts`: itemized data, total, date, category.  
+4. **Database (MongoDB)**
+   - `users`: profile, language preference.
+   - `receipts`: itemized data, total, date, category.
    - `insights`: monthly summaries, trends.
 
-5. **Google Wallet Integration**  
+5. **Google Wallet Integration**
    - Custom pass templates for:
      - Receipts
      - Monthly insights
-     - Shopping lists  
+     - Shopping lists
    - Push updates when new insights are available.
 
 ---
